@@ -13,7 +13,10 @@ all: $(foreach x, en fr, $x.pdf)
 en.pdf: $(CV_DIR)/en.tex $(EN_CV_SRCS)
 	$(CC) -output-directory=$(CV_DIR) -interaction=nonstopmode $<
 
-fr.pdf: $(CV_DIR)/fr.tex $(CV_DIR)/fr.tex $(FR_CV_SRCS)
+fr.pdf: $(CV_DIR)/fr.tex $(FR_CV_SRCS)
+	$(CC) -output-directory=$(CV_DIR) -interaction=nonstopmode $<
+
+hec.pdf: $(CV_DIR)/hec.tex $(FR_CV_SRCS)
 	$(CC) -output-directory=$(CV_DIR) -interaction=nonstopmode $<
 
 clean:
