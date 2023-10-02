@@ -1,23 +1,30 @@
 .PHONY: all
 .DEFAULT_GOAL := all
+PODMAN_GOAL ?= all
 
 CC = xelatex
-CV_DIR = cv
-EN_DIR = cv/en
-FR_DIR = cv/fr
-EN_CV_SRCS = $(shell find $(EN_DIR) -name '*.tex')
-FR_CV_SRCS = $(shell find $(FR_DIR) -name '*.tex')
+WORK_DIR = cv
+WORK_DIR_EN = cv/en
+WORK_DIR_FR = cv/fr
+OUT_DIR = out
+EN_SRCS = $(shell find $(WORK_DIR_EN) -name '*.tex')
+FR_SRCS = $(shell find $(WORK_DIR_FR) -name '*.tex')
 
 all: $(foreach x, en fr, $x.pdf)
 
-en.pdf: $(CV_DIR)/en.tex $(EN_CV_SRCS)
-	$(CC) -output-directory=$(CV_DIR) -interaction=nonstopmode $<
+en.pdf: $(WORK_DIR)/en.tex $(EN_SRCS)
+	$(CC) -output-directory=$(WORK_DIR) -interaction=nonstopmode $<
+	mkdir -p $(OUT_DIR) && cp $(WORK_DIR)/en.pdf $(OUT_DIR)
 
-fr.pdf: $(CV_DIR)/fr.tex $(FR_CV_SRCS)
-	$(CC) -output-directory=$(CV_DIR) -interaction=nonstopmode $<
-
-hec.pdf: $(CV_DIR)/hec.tex $(FR_CV_SRCS)
-	$(CC) -output-directory=$(CV_DIR) -interaction=nonstopmode $<
+fr.pdf: $(WORK_DIR)/fr.tex $(FR_SRCS)
+	$(CC) -output-directory=$(WORK_DIR) -interaction=nonstopmode $<
+	mkdir -p $(OUT_DIR) && cp $(WORK_DIR)/fr.pdf $(OUT_DIR)
 
 clean:
-	rm -rf $(CV_DIR)/*.pdf
+	rm -rf $(WORK_DIR)/*.{ps,pdf,log,aux,out,dvi,bbl,blg,snm,toc,nav}
+
+_podman:
+	podman build . -t agervais/xelatex:latest
+	podman run --rm -v $(shell pwd):/data agervais/xelatex:latest make $(PODMAN_GOAL) && make clean
+
+podman: clean _podman
