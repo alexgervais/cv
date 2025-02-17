@@ -1,6 +1,6 @@
 .PHONY: all
 .DEFAULT_GOAL := all
-PODMAN_GOAL ?= all
+CONTAINER_GOAL ?= all
 
 CC = xelatex
 WORK_DIR = cv
@@ -25,6 +25,11 @@ clean:
 
 _podman:
 	podman build . -t agervais/xelatex:latest
-	podman run --rm -v $(shell pwd):/data agervais/xelatex:latest make $(PODMAN_GOAL) && make clean
+	podman run --rm -v $(shell pwd):/data agervais/xelatex:latest make $(CONTAINER_GOAL) && make clean
+
+_docker:
+	docker build . -t agervais/xelatex:latest
+	docker run --rm -v $(shell pwd):/data agervais/xelatex:latest make $(CONTAINER_GOAL) && make clean
 
 podman: clean _podman
+docker: clean _docker
